@@ -27,12 +27,23 @@ class SecretManager:
 
         self._log = logging.getLogger(self.__class__.__name__)
 
+
     def do_derivation(self, salt:bytes, key:bytes)->bytes:
-        raise NotImplemented()
+        
+        self._salt = salt
+        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length = SecretManager.KEY_LENGTH, SALT = self._salt, iterations = SecretManager.ITERATION)
+        self._key = kdf.derive(key)
+
+        return self._key
 
 
     def create(self)->Tuple[bytes, bytes, bytes]:
-        raise NotImplemented()
+        
+        self._key = os.urandom(SecretManager.KEY_LENGTH)
+        self._salt = os.urandom(SecretManager.SALT_LENGTH)
+        self._token = os.urandom(SecretManager.TOKEN_LENGTH)
+        
+        return [self._key, self._salt, self._token]
 
 
     def bin_to_b64(self, data:bytes)->str:
