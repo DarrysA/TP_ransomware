@@ -36,7 +36,11 @@ class Ransomware:
 
     def get_files(self, filter:str)->list:
         # return all files matching the filter
-        raise NotImplemented()
+        
+        # on crée la liste de tous les strings en appelant la fonction rglob()
+        list = sorted(Path().rglob(filter))
+
+        return list
 
     def encrypt(self):
         # main function for encrypting (see PDF)
