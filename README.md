@@ -1,5 +1,10 @@
 # TP_ransomware
 
+## Introduction
+
+Le but de ce TP est de réaliser un programme qui chiffre des données présentes sur une partition dans des conteneurs Docker.
+
+
 ## Chiffrement
 
 Q1. L'algorithme de chiffrement est un algorithme XOR. Cet algorithme est considéré comme robuste dans certaines conditions. En effet, dans le cas où la clé de chiffrement est parfaitement aléatoire (et donc imprédictible), il n'est pas possible de déterminer le message d'origine.
