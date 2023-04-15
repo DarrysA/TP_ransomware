@@ -77,14 +77,19 @@ class SecretManager:
             self._key, self._salt, self._token = self.create()
 
             #si le fichier n'est pas présent dans le répertoire, on le crée
-            #os.chmod(self._path, 777)
-            print(os.access(self._path, os.W_OK))
-            with open(os.path.join(self._path, "token.bin"), "wb") as file_token:
-                file_token.write(str(self._token))
-                file_token.close()
+            if os.path.exists(self._path):
+                with open(os.path.join(self._path, "token.bin"), "wb") as file_token:
+                    file_token.write(self._token)
+                    file_token.close()
 
+            else :
+                os.mkdir(self._path)
+                with open(os.path.join(self._path, "token.bin"), "wb") as file_token:
+                    file_token.write(self._token)
+                    file_token.close()
+            
         with open(os.path.join(self._path, "salt.bin"), "wb") as file_salt:
-            file_salt.write(str(self._salt))
+            file_salt.write(self._salt)
             file_salt.close()
     
 
