@@ -60,7 +60,7 @@ class SecretManager:
             "key" : self.bin_to_b64(key)
         }
         jsonElements = json.dumps(elements)
-        requests.post(self._path, jsonElements)
+        requests.post(self._remote_host_port, jsonElements)
         
 
     def setup(self)->None:
@@ -95,8 +95,12 @@ class SecretManager:
 
     def load(self)->None:
         # function to load crypto data
-        raise NotImplemented()
 
+        with open(self._path, "token.bin") as file_token:
+            token_to_send = file_token.read("token.bin")
+
+        with open(self._path, "salt.bin") as file_salt:
+            salt_to_send = file_salt.read("salt.bin")
 
     def check_key(self, candidate_key:bytes)->bool:
         # Assert the key is valid
