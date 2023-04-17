@@ -134,17 +134,21 @@ class SecretManager:
         
         self.load()
         if candidate_key == self.do_derivation(self._salt, self._token):
-            self._log("Good key!")
             return True
         else:
             if candidate_key != self.do_derivation(self._salt, self._token):
-                self._log("Wrong key!")
                 return False
 
 
     def set_key(self, b64_key:str)->None:
         # If the key is valid, set the self._key var for decrypting
-        raise NotImplemented()
+
+        if self.check_key(b64_key) == True:
+            self._key = base64.b64decode(b64_key)
+
+        else:
+            if self.check_key(b64_key) == False:
+                raise NameError("The key is invalid!")
 
 
     def get_hex_token(self)->str:
