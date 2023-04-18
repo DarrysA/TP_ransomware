@@ -115,7 +115,6 @@ class SecretManager:
     def check_key(self, candidate_key:bytes)->bool:
         # Assert the key is valid
         if candidate_key == self.do_derivation(self._salt, self._token):
-            print("La clé est bonne !")
             return True
         else:
             return False
@@ -144,7 +143,6 @@ class SecretManager:
 
     def xorfiles(self, files:List[str])->None:
         # xor a list for file
-        print(self._key)
         xorfile(files, self._key)
 
 
