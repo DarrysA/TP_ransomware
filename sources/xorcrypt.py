@@ -20,8 +20,6 @@ def xorfile(filename:str, key:bytes)->bytes:
     with open(filename, "rb") as f:
         plain = f.read()
 
-    print(f"Chiffrement du fichier : {filename}")
-
     # Do the job
     encrypted = xorcrypt(plain, key)
 
