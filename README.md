@@ -13,5 +13,5 @@ Q2.
 
 Q3. 
 
-Q4. On peut vérifier que la clé rentrée est la bonne en refaisant le processus qui a permis de la créer à partir du salt et du token fournis. En effet, la clé a été créée à partir du sel et du token, à l'aide de la fonction ```do_derivation```. On peut donc faire passer le sel et la clé existante dans la fonction ```do_derivation``` et comparer le résultat avec la clé.
+Q4. On peut vérifier que la clé rentrée est la bonne en refaisant le processus qui a permis de la créer à partir du salt et du token fournis. En effet, la clé a été créée à partir du sel et du token, à l'aide de la fonction ```do_derivation```. On peut donc faire passer le sel et le token existants dans la fonction ```do_derivation``` et comparer le résultat avec la clé fournie.
 
